@@ -798,11 +798,13 @@ check it.  The judgment is the point, not the tool-use:
 (a) `2 < 3 ∧ 3 < 4`   (b) `2 < 3 ∨ 3 < 2`   (c) `¬ (2 = 3)`   (d) `¬ (2 < 3 ∧ 3 < 2)`
 
 ```lean
-#guard decide (2 < 3 ∧ 3 < 4) = true
-#guard decide (2 < 3 ∨ 3 < 2) = true
-#guard decide (¬ (2 = 3)) = true
-#guard decide (¬ (2 < 3 ∧ 3 < 2)) = true
+#guard decide (2 < 3 ∧ 3 < 4) = true Can close because both comparisons are decidable; uses ∧ (conjunction)
+#guard decide (2 < 3 ∨ 3 < 2) = true Can close because the domain is finite and the predicate is decidable; uses ∨ (disjunction)
+#guard decide (¬ (2 = 3)) = true Can close because equality on Nat is decidable; uses ¬ (negation)
+#guard decide (¬ (2 < 3 ∧ 3 < 2)) = true Can close because both comparisons are decidable; uses ¬ (negation) and ∧ (conjunction)
 ```
+I think all four can be closed by decide
+
 
 Every atom here is a decidable comparison over concrete `Nat`s, so each connective stays
 decidable.
@@ -826,6 +828,13 @@ twice introduces `f : α → α` and `x : α`; the only way to reach the goal `�
 
 When `α` is a `Prop`, read `(P → P) → P → P` aloud: what does `twice` say logically?
 
+goal: α → α
+step 1 [→I] fun f : α → α
+step 2 [→I] fun x : α
+step 3 [→E] apply f to x, goal becomes α
+def twice (f : α → α) (x : α) : α := f (f x)
+^ could be wrong
+
 ---
 
 **[E0.3]** · *specification writing (+ type reading)* · tier 1 · **core** · target `mapOption`
@@ -840,6 +849,12 @@ then confirm on instances.  Which **two** of the six constructors does the *type
 #guard mapOption (· * 2) (none : Option Nat) = none
 #guard mapOption (fun b => !b) (some true) = some false
 ```
+
+fun mapOption (f : α → β) (o : Option α) : Option β :=
+  match o with
+  | some a => some (f a)
+  | none   => none
+
 
 ---
 
@@ -856,6 +871,7 @@ two sides differ):
 
 Then state, in one line, the *side condition* on `a` and `b` under which `(a - b) + b = a`
 does hold.
+if 'a' is greater than or equal to 'b', then (a - b) + b = a
 
 ---
 
@@ -884,5 +900,8 @@ read the provided term `fromImpossible : Empty → Nat × Bool × String := noma
 both registers — the computational one (an unreachable branch) and the logical one (*ex
 falso quodlibet*).  No code to submit.
 @@@ -/
-
+#eval decide (¬ (2 < 3 ∧ 3 < 2)) = true
+#eval decide (¬ (2 = 3)) = true
+#eval decide (2 < 3 ∨ 3 < 2) = true
+#eval decide (2 < 3 ∧ 3 < 4) = true
 end Week00

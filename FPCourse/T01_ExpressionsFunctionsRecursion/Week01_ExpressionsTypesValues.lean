@@ -268,6 +268,11 @@ type `∀ α, α → α → α`, polymorphic in `α`.  State one thing every inh
 its two inputs and one thing it **cannot** do (can it manufacture a fresh `α`? compare
 the two?).  This previews the free theorems of Week 7 (§7.2).  No code to submit.
 
+#check Nat.add Takes two `Nat` arguments and returns a `Nat`. It is curried, taking one argument at a time.
+#check Nat.mul Takes two `Nat` arguments and returns a `Nat`. It is curried, taking one argument at a time.
+#check String.append Takes two `String` arguments and returns a `String`. It is curried, taking one argument at a time.
+It cannot manufacture a fresh `α` because it only has access to the two inputs of type `α` and cannot create new values of that type.
+It can compare them.
 ---
 
 **[E1.2]** · *specification writing* · tier 1 · **core** · target `myStrNat`
@@ -283,7 +288,7 @@ instance.  The projections `.1` and `.2` are your spec vocabulary (§1.4).
 #guard myStrNat.2 = 4
 #guard decide (myStrNat.1 = "lean" ∧ myStrNat.2 > 0) = true
 ```
-
+def myStrNat : String × Nat := ("lean", 4)
 ---
 
 **[E1.3]** · *decidability identification* · tier 1 · **core**
@@ -302,7 +307,8 @@ check only the ones that are decidable:
 -- (d) has no check on purpose: say why `decide` cannot close Float equality.
 --     (Hint: what would DecidableEq Float have to certify about NaN?  §1.2, revisited Week 7.)
 ```
-
+a yes it can atomic math, b, yes both sides are decidable built with connective that is fine, c yes it can it is connective but can do math than verify not correct
+d. no it cannot because Float equality is not decidable due to the presence of NaN (Not a Number) values, which do not have a well-defined equality relation.
 ---
 
 **[E1.4]** · *counterexample finding* · tier 1 · **core** · target `subCancelCex`
@@ -318,6 +324,8 @@ the mismatch and encode the witness as the *inequality that must hold*, so the c
 
 *First-step hint:* pick `a < b` so the subtraction underflows to `0`.  Then state, in one
 line, the side condition under which the original equation **does** hold.  Effort: 1 line.
+
+This only holds if a is greater than or equal to b, then (a - b) + b = a, if not because no negatives it will not work
 
 ---
 
@@ -349,5 +357,13 @@ obligation `0 ≠ 0` that has no inhabitant.  Then confirm the two working calls
 #guard safeDiv 17 3 (by decide) = 5
 ```
 @@@ -/
+#check Nat.add
+#check Nat.mul
+#check String.append
+
+
+def myStrNat : String × Nat := ("lean", 4)
+#eval decide (myStrNat.1 = "lean" ∧ myStrNat.2 > 0) = true
+
 
 end Week01

@@ -432,6 +432,12 @@ vs. `n + 1`).  State its specification as a `∀` proposition — *"`pred'` undo
 #guard decide (∀ n ∈ ([0, 1, 2, 3, 10] : List Nat), pred' (n + 1) = n) = true
 ```
 
+def pred' : Prop : = ∀ n : Nat, pred' (n + 1) = n ∧ pred' 0 = 0
+
+def pred' (n : Nat) : Nat := match n with
+  | 0 => 0
+  | n + 1 => n
+
 ---
 
 **[E2.2]** · *counterexample finding* · tier 1 · **core**
@@ -449,6 +455,10 @@ the two sides are unequal):
 At which single `n` does `double n = n + 2` accidentally hold?  State the *correct* spec
 of `double` in one line.
 
+at n = 2 it accidentally holds
+
+def double_spec : Prop := ∀ n : Nat, double n = n + n
+
 ---
 
 **[E2.3]** · *specification reading* · tier 2 (+ tier-3 reading) · **core**
@@ -463,6 +473,10 @@ closes the goal — do **not** author a proof of your own.  One confirmation tha
 ```lean
 #guard decide ((1 < 2) ∧ (2 < 3)) = true
 ```
+
+Computationally it means that given a proof of a and a proof of b we can make a type of the proofs of a and b, logically it means that both things must be true.
+symm is just giving the mirror image of the proof showing that it is true in the other direction.
+
 
 ---
 
@@ -482,6 +496,12 @@ decidable predicate?) *before* checking — the judgment is the point, not the t
 -- (e) has no check on purpose: say why decide cannot close an unbounded ∀ over Nat,
 --     and what unfolding of ¬ makes (d) the type (True ∧ False) → False.
 ```
+
+A, it can decide and close it finite
+b, it can decide and close it finite
+c, it can decide and close it finite
+d, it can decide and close it finite
+e, it cannot decide and close it because it is unbounded over Nat so it is not finite and as such decide cannot close it.
 
 ---
 
@@ -565,5 +585,7 @@ hypothesis closes the final goal?
 does it have when `A B C` are fully polymorphic, and why can the code not *invent* a `C`?
 This is the inverse of (a): where the derivation is forced, the reading is total.
 @@@ -/
+
+#check @And.intro
 
 end Week02
