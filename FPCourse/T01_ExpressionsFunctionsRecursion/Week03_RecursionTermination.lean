@@ -119,7 +119,6 @@ def factorialTR (n : Nat) : Nat := factorialAcc n 1
 -- Notice: the accumulator grows on the way DOWN; no work on the way back up.
 #eval factorialTR 5   -- 120
 example : factorialTR 5 = 120 := rfl
-
 /-! @@@
 > **Checkpoint — `factorialTR` accumulates on the way down.** The accumulator carries the
 > running product, so the recursive call is the last thing done.  **Predict** `factorialTR 4`
@@ -401,6 +400,18 @@ already in hand.  Effort: ~4 trace steps, 3 lines of code.
 #guard sumTo 10 = 55
 ```
 
+goal Nat → Nat
+Step 1 [-I] fun (a : Nat) => Nat
+Step 2 [-E] match a with
+  | 0 => ?
+  | n + 1 => ?
+Step 3 reach base case and close
+
+def sumTo : Nat → Nat
+  | 0     => 0
+  | n + 1 => (n + 1) + sumTo n
+
+
 ---
 
 **[E3.2]** · *specification writing* · tier 1 (+ tier-3 reading) · **core** · target `SumToClosedForm`
@@ -419,6 +430,9 @@ Instead confirm the spec on instances and on one bounded, decidable slice:
 In one line: which tier does the *general* `∀ n : Nat` statement live in, and which the
 three checks?
 
+def SumToClosedForm : Prop := ∀ n : Nat, sumTo n = n * (n + 1) / 2
+Tier 3 for the general statement, Tier 1 for the three checks, because it requires a proof by induction
+
 ---
 
 **[E3.3]** · *counterexample finding* · tier 1 · **core**
@@ -435,6 +449,9 @@ the check **succeeds** (it confirms the two sides differ):
 *First-step hint:* evaluate `sumTo 3` and `3 * 3 / 2` by hand and compare.  Then state, in
 one line, the *single edit* to the student's formula that makes it correct (compare with
 the spec in E3.2).
+
+sumTo 3 = 6, and 3*3/2 = 4.5,
+Needs to be n*(n+1)/2 to be correct
 
 ---
 
@@ -455,6 +472,11 @@ For each claim, say **whether `decide` (equivalently an `rfl`-test) can close it
 --     (hint for (b): §3.4 — gcd is well-founded, so the kernel cannot reduce it;
 --      for (d): the domain of n is infinite).
 ```
+
+a. decide can close it
+b. decide cannot close it because `gcd` is well-founded and the kernel cannot reduce it
+c. decide can close it
+d. decide cannot close it because the domain of `n` is infinite
 
 ---
 
