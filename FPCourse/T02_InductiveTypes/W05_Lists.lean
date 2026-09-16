@@ -212,6 +212,10 @@ prove the general statement — that proof is `List.mem_append`, given in §5.1 
 
 In one line: which tier does the *general* statement live in, and which the two checks?
 
+The general statement (`List.mem_append`, a proof for *every* `n xs ys`) lives in tier 3
+(reading a general proof); the two `#guard` checks live in tier 1 (confirming a decidable
+proposition on concrete, finite instances).
+
 ---
 
 **[E5.2]** · *decidability identification* · tier 1 · **core**
@@ -230,6 +234,14 @@ decidable predicate?) *before* checking — the judgment is the point, not the t
 --     term that settles it instead (hint: it is in §5.3).
 ```
 
+(a) decidable — the domain `[2,4,6,8,10]` is a finite, concrete list, and `x % 2 = 0` is a
+    decidable predicate on `Nat`, so `decide` can check it element by element.
+(b) decidable — same reasoning: finite list, decidable predicate `x > 10`.
+(c) **not** decidable — `∀ xs : List Nat, ...` quantifies over an unbounded (infinite)
+    domain; there is no way to enumerate every `List Nat` to check the predicate. The term
+    that settles it instead is `reverse_reverse` (§5.3), a proof by induction, not a
+    finite check.
+
 ---
 
 **[E5.3]** · *counterexample finding* · tier 1 · **core** · target `zipLenCounterexample`
@@ -245,6 +257,9 @@ confirms the two sides differ).  `List.zip` is in Mathlib.
 
 Then state the *correct* length spec in one line (you will build it in E5.5).
 
+def zipLenSpec : Prop := ∀ (xs : List α) (ys : List β),
+  (List.zip xs ys).length = min xs.length ys.length
+
 ---
 
 **[E5.4]** · *type-directed derivation* · tier 2 · **core** · target `headOr`
@@ -259,6 +274,24 @@ constructor (`[]` vs `h :: t`) is what you eliminate first (⊕E-style `match`).
 #guard headOr 0 ([] : List Nat) = 0
 #guard headOr 0 [7, 8, 9] = 7
 ```
+
+```text
+DERIVATION of  headOr : α → List α → α
+  goal: α → List α → α
+  step 1 [→I]  fun (default : α) => ?         ⟶ goal: List α → α, with default : α
+  step 2 [→I]  fun (xs : List α) => ?          ⟶ goal: α, with default : α, xs : List α
+  step 3 [⊕E]  match xs with                   ⟶ two goals — template principle (§4.6):
+                 | []      => ?                   List has two constructors, [] and ::
+                 | h :: t  => ?                 case []:     goal α, only default in scope
+                                                 case h :: t: goal α, h : α, t : List α, default : α
+  step 4 [use default]  default  (case [])    ⟶ closed — no head exists, fall back
+  step 5 [use h]         h        (case h::t) ⟶ closed — the head itself
+  ∎
+```
+
+def headOr (default : α) : List α → α
+  | []     => default
+  | h :: _ => h
 
 ---
 
