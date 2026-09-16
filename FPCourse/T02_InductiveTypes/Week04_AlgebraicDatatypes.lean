@@ -234,6 +234,30 @@ clauses.  Effort: ~3 trace steps, 5 lines of code.
 #guard numSides (Shape.Triangle 1.0 1.0) = 3
 ```
 
+inductive Shape where
+  | Circle (radius : Float)
+  | Rectangle (width height : Float)
+  | Triangle (base height : Float)
+
+def numSides : Shape → Nat
+  | Shape.Circle _        => 0
+  | Shape.Rectangle _ _   => 4
+  | Shape.Triangle _ _    => 3
+
+```text
+DERIVATION of  numSides : Shape → Nat
+  goal: Shape → Nat
+  step 1 [→I]  fun (s : Shape) => ?          ⟶ goal: Nat, with s : Shape
+  step 2 [⊕E]  match s with                  ⟶ three goals — template principle (§4.6):
+                 | .Circle r      => ?           Shape has three constructors, so the
+                 | .Rectangle w h => ?            two-way ⊕E generalizes to three clauses,
+                 | .Triangle b h  => ?            one per constructor
+  step 3 [use 0]  0   (case Circle)          ⟶ closed — 0 straight sides; r unused
+  step 4 [use 4]  4   (case Rectangle)       ⟶ closed — 4 straight sides; w, h unused
+  step 5 [use 3]  3   (case Triangle)        ⟶ closed — 3 straight sides; b, h unused
+  ∎
+```
+
 ---
 
 **[E4.2]** · *specification writing* · tier 1 (+ decidability identification) · **core** · target `area`, `AreaCircleSpec`
@@ -245,10 +269,17 @@ Define `area : Shape → Float` (`Circle r ↦ Float.pi * r * r`, `Rectangle w h
 -- def AreaCircleSpec : Prop := ∀ r : Float, area (Shape.Circle r) = Float.pi * r * r
 ```
 
+def area : Shape → Float
+  | Shape.Circle r      => Float.pi * r * r
+  | Shape.Rectangle w h => w * h
+  | Shape.Triangle b h  => 0.5 * b * h
+
 Then answer in one line: **why does this exercise ship no `#guard` acceptance check for
 `area`?**  Name the type class `#guard`/`decide` needs and the type (see §4.2 and the
 Float discussion) that lacks it.  The judgment — not a passing check — is the deliverable
 here.
+
+float doesnt have a decideable eq instance so it cant guard or check the equality of two floats.
 
 ---
 
@@ -264,6 +295,8 @@ and encode it as the inequality that must hold, so the check **succeeds**:
 
 Then state the *correct* one-line spec for `mul` (the `eval_mul` analogue of `eval_add`,
 §4.5).
+
+theorem eval_mul (e₁ e₂ : Expr) : (Expr.mul e₁ e₂).eval = e₁.eval * e₂.eval := rfl
 
 ---
 
@@ -283,6 +316,23 @@ then confirm it on instances (mind the negative-result boundary):
 
 *First-step hint:* copy the four `Expr.eval` clauses of §4.5 and add `.sub a b ↦ a.eval -
 b.eval`.  Effort: ~6 lines of code.
+
+inductive MyExpr where
+  | num : Int → MyExpr
+  | add : MyExpr → MyExpr → MyExpr
+  | mul : MyExpr → MyExpr → MyExpr
+  | neg : MyExpr → MyExpr
+  | sub : MyExpr → MyExpr → MyExpr
+deriving Repr
+
+def MyExpr.eval : MyExpr → Int
+  | .num n     => n
+  | .add e₁ e₂ => e₁.eval + e₂.eval
+  | .mul e₁ e₂ => e₁.eval * e₂.eval
+  | .neg e     => -e.eval
+  | .sub e₁ e₂ => e₁.eval - e₂.eval
+
+theorem eval_sub (a b : MyExpr) : (MyExpr.sub a b).eval = a.eval - b.eval := rfl
 
 ---
 
