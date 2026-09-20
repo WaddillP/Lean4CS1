@@ -500,7 +500,15 @@ def meatToString : Chicken ⊕ Fish → String
 ## EXERCISES:
 @@@ -/
 
--- #1: PROVE: Chicken ⊕ Fish → Fish ⊕ Chicken
+-- PROVE: Chicken ⊕ Fish → Fish ⊕ Chicken
+def swapProtein : Chicken ⊕ Fish → Fish ⊕ Chicken
+| Sum.inl c => Sum.inr c
+| Sum.inr f => Sum.inl f
+
+-- STATE AND PROVE: ⊕ is commutative in general
+def sumComm {α β : Type u} : α ⊕ β → β ⊕ α
+| Sum.inl a => Sum.inr a
+| Sum.inr b => Sum.inl b
 
 /- @@@
 #2: PROVE: that someone who ordered "Fish, and either
