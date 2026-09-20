@@ -71,3 +71,31 @@ def swap'' :
   a × b → b × a
   :=
   fun α β (a, b) => (b, a)
+
+
+inductive PropLogicSyntax : Type where
+| T : PropLogicSyntax
+| F : PropLogicSyntax
+| and (p q : PropLogicSyntax) : PropLogicSyntax
+| or (p q : PropLogicSyntax) : PropLogicSyntax
+| not (p : PropLogicSyntax) : PropLogicSyntax
+| implies (p q : PropLogicSyntax) : PropLogicSyntax
+| var (s : String) : PropLogicSyntax
+
+def varInterp : Type := String → Bool
+
+
+
+def eval : PropLogicSyntax → varInterp → Bool
+| PropLogicSyntax.T, _ => true
+| PropLogicSyntax.F, _ => false
+| (PropLogicSyntax.and p q),i => eval p i && eval q i
+| (PropLogicSyntax.or p q),i => eval p i || eval q i
+| (PropLogicSyntax.not p),i => !eval p i
+| (PropLogicSyntax.implies p q),i => !eval p i || eval q i
+| (PropLogicSyntax.var v),i => i v
+
+def e1 := PropLogicSyntax.F
+def e2 := PropLogicSyntax.T
+def e3 := PropLogicSyntax.and e1 e2
+#eval eval e3
