@@ -500,12 +500,17 @@ def meatToString : Chicken ⊕ Fish → String
 ## EXERCISES:
 @@@ -/
 
--- PROVE: Chicken ⊕ Fish → Fish ⊕ Chicken
+-- #1: PROVE: Chicken ⊕ Fish → Fish ⊕ Chicken
+-- ⊕ elimination (case split) on the argument, then re-introduce
+-- under the opposite constructor: whatever was on the left goes
+-- to the right, and vice versa.
 def swapProtein : Chicken ⊕ Fish → Fish ⊕ Chicken
 | Sum.inl c => Sum.inr c
 | Sum.inr f => Sum.inl f
 
--- STATE AND PROVE: ⊕ is commutative in general
+-- #1 (general form): STATE AND PROVE: ⊕ is commutative in general
+-- Same case-split/re-intro strategy, but now for *any* α and β,
+-- so it specializes to swapProtein (and any other ⊕ pair) for free.
 def sumComm {α β : Type u} : α ⊕ β → β ⊕ α
 | Sum.inl a => Sum.inr a
 | Sum.inr b => Sum.inl b
@@ -521,8 +526,10 @@ derives and returns a meal, "either Rice or Potato,
 and Fish."
 @@@-/
 
+-- × elimination (destructure the pair into f and rop),
+-- then × introduction in the swapped order.
 example : Fish × (Rice ⊕ Potato) → (Rice ⊕ Potato) × Fish
-| _ => sorry    -- replace this line
+| (f, rop) => (rop, f)
 
 /- @@@
 That's just commutativity of × again. We proved it by
@@ -548,16 +555,22 @@ same principle holds for × and ⊕, first in a specific
 example, then in general.
 @@@ -/
 
+-- You've got fish for certain (× on the outside); now case-split
+-- (⊕ elimination) on whether rop holds rice or potato, and
+-- re-intro the × / ⊕ nested the other way around each branch.
 example :
   Fish × (Rice ⊕ Potato) → Fish × Rice ⊕ Fish × Potato
-  | (f, rop) =>
-      sorry
-  -- you've got fish; now does rop hold rice or potato?
+  | (f, Sum.inl r) => Sum.inl (f, r)
+  | (f, Sum.inr p) => Sum.inr (f, p)
 
 -- #4 Prove the other direction too.
+-- Here ⊕ is outermost, so case-split (⊕ elimination) first,
+-- destructuring the × pair inside each branch, then re-intro
+-- as a single Fish × (Rice ⊕ Potato).
 example :
   Fish × Rice ⊕ Fish × Potato → Fish × (Rice ⊕ Potato)
-  | _ => sorry    -- replace line with your code
+  | Sum.inl (f, r) => (f, Sum.inl r)
+  | Sum.inr (f, p) => (f, Sum.inr p)
 
 
 /- @@@
