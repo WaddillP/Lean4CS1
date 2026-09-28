@@ -254,23 +254,40 @@ decide on its associativity, and then write the *rfl* theorems
 that confirm your choices parse the way you expect.
 @@@ -/
 
--- theorem DM1 : ∀ (P Q : Prop), ¬(P ∧ Q) → ¬P ∨ ¬Q :=
+
+
+-- theorem DM1  :
+--   ∀ (P Q : Prop), (¬ (P ∧ Q) → ¬P ∨ ¬Q) :=
 --   fun P Q =>
 --     fun h =>
 --       Or.inl _ => _
 
-theorem DM2 : ∀ (P Q : Prop), ¬P ∨ ¬Q → ¬(P ∧ Q) :=
-  fun P _Q =>                           -- ∀ intro (twice)
-    fun h =>                            -- ∀ intro
-      fun pandq =>                      -- → intro
-        let p : P := And.left pandq     -- And.elim on left
-        let q := pandq.right            -- And.elim on right
-        match h with                    -- Or elim (by cases)
-        | Or.inl np => np p             -- → elim (fn application)
-        | Or.inr nq => nq q             -- → elim (fn application)
+theorem DM2  :
+  ∀ (P Q : Prop), ¬P ∨ ¬Q → ¬(P ∧ Q)  :=
+  fun P Q =>
+    fun h =>
+      fun pandq =>
+        let p : P := pandq.left
+        let q : Q := pandq.right
+        match h with
+        | Or.inl np => np p
+        | Or.inr nq => nq q
 
-/- @@@
-Mandatory homework: State and prove the two remaining
-variants of DeMorgan's laws, involving distribution of
-nation over disjunction (not over or).
-@@@ -/
+theorem DM3  :
+  ∀ (P Q : Prop), ¬(P ∨ Q) → ¬P ∧ ¬Q  :=
+  fun P Q =>
+    fun h =>
+      And.intro
+        (fun p => h (Or.inl p))
+        (fun q => h (Or.inr q))
+
+theorem DM4  :
+  ∀ (P Q : Prop), ¬P ∧ ¬Q → ¬(P ∨ Q)  :=
+  fun P Q =>
+    fun h =>
+      fun porq =>
+        let np : ¬P := h.left
+        let nq : ¬Q := h.right
+        match porq with
+        | Or.inl p => np p
+        | Or.inr q => nq q
