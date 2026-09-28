@@ -592,15 +592,26 @@ Infix notation for the type, *Or P Q*, is *P ∨ Q*.
 
 
 -- #5: PROVE: `Or` (∨) is commutative *in general*
+-- ∨ elimination (case split) on the argument, then re-introduce
+-- under the opposite constructor, just as with ⊕.
 
 example {P Q : Prop} : P ∨ Q → Q ∨ P
-| _ => sorry  -- replace with your code
+| Or.inl p => Or.inr p
+| Or.inr q => Or.inl q
 
 -- #6: Prove ∧ distributes over or in the usual way
+-- ∧ elimination (destructure the pair into p and the ∨ proof),
+-- then ∨ elimination (case split) on that proof, re-introducing
+-- each branch as a pair under the matching ∨ constructor.
 example {P Q R : Prop } : P ∧ (Q ∨ R) → P ∧ Q ∨ P ∧ R
-| _ => sorry  -- replace this line with your code
+| ⟨p, Or.inl q⟩ => Or.inl ⟨p, q⟩
+| ⟨p, Or.inr r⟩ => Or.inr ⟨p, r⟩
 
--- #7: Prove that ∨ is associative. It's left associative
--- so note that P ∨ Q ∨ R is read as (P ∨ Q) ∨ R.
+-- #7: Prove that ∨ is associative. ∨ is right associative
+-- so P ∨ Q ∨ R is read as P ∨ (Q ∨ R), which is the argument type.
+-- ∨ elimination (case split), nested for the Q ∨ R side, then
+-- re-introduce each case under (P ∨ Q) ∨ R.
 example {P Q R : Prop } :  P ∨ Q ∨ R → (P ∨ Q) ∨ R
-| _ => sorry  -- replace this line with your code
+| Or.inl p => Or.inl (Or.inl p)
+| Or.inr (Or.inl q) => Or.inl (Or.inr q)
+| Or.inr (Or.inr r) => Or.inr r
