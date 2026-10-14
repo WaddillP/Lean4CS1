@@ -96,16 +96,12 @@ example (P Q : Prop) : (¬P ∨ ¬Q) → ¬(P ∧ Q) :=
       | Or.inl notP => notP pandq.left
       | Or.inr notQ => notQ pandq.right
 
-/--
-error: don't know how to synthesize placeholder
-context:
-P Q : Prop
-em : ∀ (X : Prop), X ∨ ¬X
-⊢ ¬(P ∧ Q) → ¬P ∨ ¬Q
--/
-#guard_msgs in
-example (P Q : Prop)  (em : ∀ (X : Prop), X ∨ ¬X) : ¬(P ∧ Q) → (¬P ∨ ¬Q) :=
-  _
+
+
+example ( P Q: Prop) (em : ∀ P : Prop, P ∨ ¬P) :  :=
+
+
+
 
 /- @@@
 ### Proof by Negation and by Contradiction
