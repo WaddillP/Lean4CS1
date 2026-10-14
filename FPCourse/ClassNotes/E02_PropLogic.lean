@@ -291,3 +291,25 @@ theorem DM4  :
         match porq with
         | Or.inl p => np p
         | Or.inr q => nq q
+
+theorem noContradiction : ∀ (P : Prop), ¬(P ∧ ¬P) :=
+  fun P =>
+    fun pandnp =>
+      let p : P := pandnp.left
+      let np : ¬P := pandnp.right
+      np p
+
+/-
+Use proof by negation
+assume p derive contradiction, therefore p must be false therefore notp is true
+assume we have proof of p and not p, now we need to prove its false,
+once we have that we can grab the left and right side, and use them to derive a contradiction.
+np is a function where you give p to get false, therefore we give np the proof of p and we get false.
+-/
+
+example { P : Prop} : ¬ ¬ P → P :=
+  fun nnp =>
+
+/-
+i have a function from not p to false, but i dont have a function of p, so we cant use construction
+-/
