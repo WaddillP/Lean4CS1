@@ -228,6 +228,14 @@ rather than a one-step case split -- and it's why
 induction and recursion are, underneath, the same thing.
 @@@ -/
 
+def sumToN : Nat → Nat
+| Nat.zero => 0
+| Nat.succ n' => (sumToN n') + (n' + 1)
+
+def factorial' : Nat → Nat
+| Nat.zero => 1
+| Nat.succ n' => (n' + 1) * factorial' n'
+
 #check @Nat.rec
 
 /- @@@
