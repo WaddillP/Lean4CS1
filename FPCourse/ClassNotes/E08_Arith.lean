@@ -89,6 +89,16 @@ def kzero := KNat.zero
 def kone := KNat.succ kzero
 def ktwo := KNat.succ kone
 def kthree := KNat.succ ktwo
+<<<<<<< HEAD
+=======
+def kfour := KNat.succ kthree
+def kfive := KNat.succ kfour
+def ksix := KNat.succ kfive
+def kseven := KNat.succ ksix
+def keight := KNat.succ kseven
+def knine := KNat.succ keight
+def kten := KNat.succ knine
+>>>>>>> 0587d38 (exercises)
 
 /- @@@
 ### Operations
@@ -294,10 +304,13 @@ def sub : KNat → KNat → KNat
 | KNat.zero, _ => KNat.zero
 | KNat.succ a, KNat.succ b => sub a b
 
+<<<<<<< HEAD
 def sub' : KNat → KNat → KNat
 | a, KNat.zero => a
 | n, KNat.succ m => dec (sub' n m)
 
+=======
+>>>>>>> 0587d38 (exercises)
 instance : Neg KNat where
   neg := neg
 
@@ -309,6 +322,7 @@ instance : Sub KNat where
 #eval (3 : KNat) - 2
 #eval (3 : KNat) - 4
 
+<<<<<<< HEAD
 def leq : KNat → KNat → Bool
 | KNat.succ n, KNat.succ m => leq n m
 | KNat.zero, _ => true
@@ -338,6 +352,8 @@ def geq : KNat → KNat → Bool :=
   fun n m => !lt n m
 
 
+=======
+>>>>>>> 0587d38 (exercises)
 /- @@@
 EXERCISES
 
@@ -410,7 +426,11 @@ def Z : Expr := Expr.var ArithVar.Zvar
 
 def ex1 : Expr := Expr.add X (Expr.lit 2)
 
+<<<<<<< HEAD
 def emptyInterp : arithInterp := fun _ => 5
+=======
+def emptyInterp : arithInterp := fun _ => 1
+>>>>>>> 0587d38 (exercises)
 
 #eval arithEval ex1 emptyInterp
 
