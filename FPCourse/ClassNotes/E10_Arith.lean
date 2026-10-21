@@ -89,7 +89,13 @@ def kzero := KNat.zero
 def kone := KNat.succ kzero
 def ktwo := KNat.succ kone
 def kthree := KNat.succ ktwo
-
+def kfour := KNat.succ kthree
+def kfive := KNat.succ kfour
+def ksix := KNat.succ kfive
+def kseven := KNat.succ ksix
+def keight := KNat.succ kseven
+def knine := KNat.succ keight
+def kten := KNat.succ knine
 
 /- @@@
 ### Operations
@@ -196,9 +202,17 @@ zero := KNat.zero
 -- Among other things, `0` is now notation
 #check (0 : KNat)
 
-instance : One KNat where
-one := kone
-#check (1 : KNat)
+-- instance : One KNat where
+-- one := kone
+-- #check (1 : KNat)
+
+-- Used AI for this in order to get all Nats into KNat
+instance : OfNat KNat n where
+  ofNat := go n
+  where
+    go : Nat → KNat
+    | 0 => KNat.zero
+    | Nat.succ n' => KNat.succ (go n')
 
 instance : Add KNat where
   add := KNat.add      -- class field name on left, add function on right
@@ -245,6 +259,27 @@ def addAnyTypeAsLongItsAddable {α : Type} [Add α] : α → α → α
 -- -- add for KNat
 #eval addAnyTypeAsLongItsAddable (1 : KNat) 1
 
+-- Unsure for this, nat doesnt have negatives I don't know what this should do
+def neg : KNat → KNat
+| KNat.zero => KNat.zero
+| KNat.succ n => KNat.zero
+
+def sub : KNat → KNat → KNat
+| a, KNat.zero => a
+| KNat.zero, _ => KNat.zero
+| KNat.succ a, KNat.succ b => sub a b
+
+instance : Neg KNat where
+  neg := neg
+
+#eval  - (3 : KNat)
+
+instance : Sub KNat where
+  sub := sub
+
+#eval (3 : KNat) - 2
+#eval (3 : KNat) - 4
+
 /- @@@
 EXERCISES
 
@@ -283,20 +318,42 @@ open KNat
 ## Syntax
 @@@ -/
 
+inductive ArithVar where
+| Xvar
+| Yvar
+| Zvar
+open ArithVar
+
 inductive Expr where
-| lit (n : Nat) : Expr
+| lit (n : KNat) : Expr
 | add (e1 e2 : Expr) : Expr
+| sub (e1 e2 : Expr) : Expr
+| neg (e : Expr) : Expr
+| var (v : ArithVar) : Expr
 open Expr
 
+def arithInterp : Type := ArithVar → KNat
 
 /-@@@
 ## Operational Semantics
 @@@ -/
 
-def arithEval : Expr → Nat
-| Expr.lit n => n
-| Expr.add e1 e2 => Nat.add (arithEval e1) (arithEval e2)  -- (arithEval e1) + (arithEval e2)
+def arithEval : Expr → arithInterp → KNat
+| Expr.lit n, _ => n
+| Expr.add e1 e2, i => KNat.add (arithEval e1 i) (arithEval e2 i)  -- (arithEval e1) + (arithEval e2)
+| Expr.sub e1 e2, i => KNat.sub (arithEval e1 i) (arithEval e2 i)
+| Expr.neg e, i => KNat.neg (arithEval e i)
+| Expr.var v, i => i v
 
+def X : Expr := Expr.var ArithVar.Xvar
+def Y : Expr := Expr.var ArithVar.Yvar
+def Z : Expr := Expr.var ArithVar.Zvar
+
+def ex1 : Expr := Expr.add X (Expr.lit 2)
+
+def emptyInterp : arithInterp := fun _ => 1
+
+#eval arithEval ex1 emptyInterp
 
 /- @@@
 ## Examples
@@ -313,7 +370,7 @@ def e4 : Expr :=   -- 7 + (6 + 9)
       (lit 9)
     )
 
-#eval arithEval e4
+#eval arithEval e4 emptyInterp
 
 
 
