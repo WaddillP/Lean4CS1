@@ -455,6 +455,8 @@ under friendlier names than `foldMonoid`/`foldAddMonoid`:
 1. Prove `isIdentityFor (α := Nat) (· + ·) 0`, mirroring the
    `(· * ·) 1` proof above.
 
+
+
 2. Give `Bool` a `Monoid` instance using `&&` and `true`.
    (`Bool.and_assoc`, `Bool.true_and`, and `Bool.and_true`,
    or your own short proofs by `decide`/case split, should do
@@ -481,5 +483,44 @@ under friendlier names than `foldMonoid`/`foldAddMonoid`:
    `List.nil_append`, and `List.append_nil`, generalizing the
    `String` instance above.
 @@@ -/
+
+-- 1.
+example : isIdentityFor (α := Nat) (· + ·) 0 :=
+  fun a => ⟨Nat.zero_add a, Nat.add_zero a⟩
+
+-- 2.
+instance : Monoid Bool where
+  op      := (· && ·)
+  id      := true
+  assoc   := Bool.and_assoc
+  idLeft  := Bool.true_and
+  idRight := Bool.and_true
+
+set_option warn.classDefReducibility false in
+def boolOrMonoid : Monoid Bool where
+  op      := (· || ·)
+  id      := false
+  assoc   := Bool.or_assoc
+  idLeft  := Bool.false_or
+  idRight := Bool.or_false
+
+-- 3.
+def mfoldWith {α : Type} (m : Monoid α) : List α → α
+| List.nil      => m.id
+| List.cons h t => m.op h (mfoldWith m t)
+
+#eval mfoldWith natMulMonoid [2, 3, 4]   -- 24, same as productNat [2, 3, 4] -- need help
+
+-- 4.
+example : ¬ (∀ a b c : Nat, (a / b) / c = a / (b / c)) :=
+  fun h => absurd (h 8 2 2) (by decide)   -- (8 / 2) / 2 = 1, but 8 / (2 / 2) = 8
+
+-- 5.
+instance {α : Type} : Monoid (List α) where
+  op      := (· ++ ·)
+  id      := []
+  assoc   := List.append_assoc
+  idLeft  := List.nil_append
+  idRight := List.append_nil
 
 end AbstractAlgebra
