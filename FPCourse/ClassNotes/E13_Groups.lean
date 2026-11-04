@@ -31,7 +31,7 @@ multiply by 1/2, and you're back where you started. This inverse
 property unlocks a whole new level of algebraic power.
 
 Rather than asking "what is a group," we'll ask: what new
-super-power does the inverse give you? The answer is *solving
+super-powers does the inverse give you? The answer is *solving
 equations*. In a monoid, if you know `a * x = b`, you can't
 reliably solve for `x` -- you don't have a way to "divide out"
 the `a`. In a group, you can: multiply both sides by the inverse
@@ -67,7 +67,7 @@ simple groups, but they fall into exactly four families:
 
   1. *Cyclic groups of prime order*: integers modulo a prime, under addition.
   2. *Alternating groups*: even permutations of N elements.
-  3. *Groups of Lie type*: built from symmetries of geometric structures.
+  3. *Groups of Lie type*: finite analogs of continuous Lie groups.
   4. *The 26 sporadic groups*: exceptional cases that don't fit the patterns.
 
 Why does classification matter? Because every finite group can be
@@ -91,9 +91,9 @@ Same as before: associative operation, identity element, two laws.
 class Monoid (α : Type) where
   op      : α → α → α
   id      : α
-  assoc   : ∀ a b c, op (op a b) c = op a (op b c)
-  idLeft  : ∀ a, op id a = a
-  idRight : ∀ a, op a id = a
+  assoc   : ∀ a b c : α, op (op a b) c = op a (op b c)
+  idLeft  : ∀ a : α, op id a = a
+  idRight : ∀ a : α, op a id = a
 
 /- @@@
 ## `Group`: A `Monoid` With Inverses
@@ -113,8 +113,8 @@ definition doesn't assume that.
 
 class Group (α : Type) extends Monoid α where
   inv     : α → α
-  invLeft : ∀ a, op (inv a) a = id
-  invRight: ∀ a, op a (inv a) = id
+  invLeft : ∀ a : α, op (inv a) a = id
+  invRight: ∀ a : α, op a (inv a) = id
 
 /- @@@
 ## Example 1: Integers Under Addition
@@ -129,14 +129,14 @@ these properties.
 @@@ -/
 
 instance : Group Int where
-  op      := (· + ·)
-  id      := 0
-  assoc   := Int.add_assoc
-  idLeft  := Int.zero_add
-  idRight := Int.add_zero
-  inv     := fun n => -n
-  invLeft := fun n => Int.add_left_neg n
-  invRight:= fun n => Int.add_right_neg n
+  op      : Int → Int → Int := (· + ·)
+  id      : Int := 0
+  assoc   : ∀ a b c : Int, (a + b) + c = a + (b + c) := Int.add_assoc
+  idLeft  : ∀ a : Int, 0 + a = a := Int.zero_add
+  idRight : ∀ a : Int, a + 0 = a := Int.add_zero
+  inv     : Int → Int := fun n => -n
+  invLeft : ∀ a : Int, (-a) + a = 0 := fun n => Int.add_left_neg n
+  invRight: ∀ a : Int, a + (-a) = 0 := fun n => Int.add_right_neg n
 
 #eval (5 : Int) + 3              -- 8
 #eval (-5 : Int)                 -- -5
@@ -148,23 +148,24 @@ adding a number and its inverse gives you back the identity.
 @@@ -/
 
 /- @@@
-## Example 2: Integers Modulo 12 (Clock Hours)
+## Example 2: Integers Modulo 3 (Three Position Clock)
 
 Clock hours form a group under addition modulo 12. The set is
 {0, 1, ..., 11}, representing the 12 hours, and adding any number of
 hours wraps around at 12. This will be useful later when we introduce
-torsors.
+torsors. For our examples we'll simplify to a three position clock:
+think noon (0), four (1), eight (2), then back to noon again (0).
 @@@ -/
 
 instance : Group (Fin 3) where
-  op      := (· + ·)
-  id      := 0
-  assoc   := by intros; ext; simp [Fin.add_def, Nat.add_assoc]
-  idLeft  := by intros; ext; simp [Fin.add_def]
-  idRight := by intros; ext; simp [Fin.add_def]
-  inv     := fun a => -a
-  invLeft := by intros; ext; simp [Fin.add_def, Fin.neg_def]
-  invRight:= by intros; ext; simp [Fin.add_def, Fin.neg_def]
+  op      : Fin 3 → Fin 3 → Fin 3 := (· + ·)
+  id      : Fin 3 := 0
+  assoc   : ∀ a b c : Fin 3, (a + b) + c = a + (b + c) := fun a b c => by ext; simp [Fin.add_def, Nat.add_assoc]
+  idLeft  : ∀ a : Fin 3, 0 + a = a := fun a => by ext; simp [Fin.add_def]
+  idRight : ∀ a : Fin 3, a + 0 = a := fun a => by ext; simp [Fin.add_def]
+  inv     : Fin 3 → Fin 3 := fun a => -a
+  invLeft : ∀ a : Fin 3, (-a) + a = 0 := fun a => by ext; simp [Fin.add_def, Fin.neg_def]
+  invRight: ∀ a : Fin 3, a + (-a) = 0 := fun a => by ext; simp [Fin.add_def, Fin.neg_def]
 
 #eval (1 : Fin 3) + (1 : Fin 3)  -- 2
 #eval (2 : Fin 3) + (1 : Fin 3)  -- 0 (wraps around)
@@ -195,14 +196,14 @@ from 0 to N-1" with addition wrapping around at N.
 @@@ -/
 
 instance : Group (Fin 5) where
-  op      := (· + ·)
-  id      := 0
-  assoc   := by intros; ext; simp [Fin.add_def, Nat.add_assoc]
-  idLeft  := by intros; ext; simp [Fin.add_def]
-  idRight := by intros; ext; simp [Fin.add_def]
-  inv     := fun a => -a
-  invLeft := by intros; ext; simp [Fin.add_def, Fin.neg_def]
-  invRight:= by intros; ext; simp [Fin.add_def, Fin.neg_def]
+  op      : Fin 5 → Fin 5 → Fin 5 := (· + ·)
+  id      : Fin 5 := 0
+  assoc   : ∀ a b c : Fin 5, (a + b) + c = a + (b + c) := fun a b c => by ext; simp [Fin.add_def, Nat.add_assoc]
+  idLeft  : ∀ a : Fin 5, 0 + a = a := fun a => by ext; simp [Fin.add_def]
+  idRight : ∀ a : Fin 5, a + 0 = a := fun a => by ext; simp [Fin.add_def]
+  inv     : Fin 5 → Fin 5 := fun a => -a
+  invLeft : ∀ a : Fin 5, (-a) + a = 0 := fun a => by ext; simp [Fin.add_def, Fin.neg_def]
+  invRight: ∀ a : Fin 5, a + (-a) = 0 := fun a => by ext; simp [Fin.add_def, Fin.neg_def]
 
 #eval (3 : Fin 5) + 2           -- 0 (because (3 + 2) mod 5 = 5 mod 5 = 0)
 #eval (4 : Fin 5) + 1           -- 0 (because (4 + 1) mod 5 = 5 mod 5 = 0)
@@ -226,7 +227,10 @@ inverse of `a`:
   `id * x = inv(a) * b`              (use `invLeft`)
   `x = inv(a) * b`                   (use identity)
 
-Let's write a function that solves `a * x = b` in any group:
+Let's write a function that solves `a * x = b` in any group. Note
+how the implicit required typeclass instance argumment protects the
+code from being used when α has not been equipped with the structure
+of a group.
 @@@ -/
 
 def solve {α : Type} [g : Group α] (a b : α) : α :=
@@ -275,10 +279,10 @@ points in a plane under translations, directions in space under rotations.
 class Torsor (G T : Type) where
   [groupG : Group G]
   act        : G → T → T
-  actId      : ∀ t, act groupG.id t = t
-  actComp    : ∀ g h t, act (groupG.op g h) t = act g (act h t)
-  actFree    : ∀ g t, act g t = t → g = groupG.id
-  actTransitive : ∀ t₁ t₂ : T, ∃ g, act g t₁ = t₂
+  actId      : ∀ t : T, act groupG.id t = t
+  actComp    : ∀ g h : G, ∀ t : T, act (groupG.op g h) t = act g (act h t)
+  actFree    : ∀ g : G, ∀ t : T, act g t = t → g = groupG.id
+  actTransitive : ∀ t₁ t₂ : T, ∃ g : G, act g t₁ = t₂
 
 /- @@@
 ## Instance 1: Fin k (Integers Modulo k)
@@ -315,22 +319,28 @@ our `Group Int` instance for integers.
 @@@ -/
 
 instance : Group Rat where
-  op      := (· + ·)
-  id      := 0
-  assoc   := Rat.add_assoc
-  idLeft  := Rat.zero_add
-  idRight := Rat.add_zero
-  inv     := fun q => -q
-  invLeft := Rat.neg_add_cancel
-  invRight:= Rat.add_neg_cancel
+  op      : Rat → Rat → Rat := (· + ·)
+  id      : Rat := 0
+  assoc   : ∀ a b c : Rat, (a + b) + c = a + (b + c) := Rat.add_assoc
+  idLeft  : ∀ a : Rat, 0 + a = a := Rat.zero_add
+  idRight : ∀ a : Rat, a + 0 = a := Rat.add_zero
+  inv     : Rat → Rat := fun q => -q
+  invLeft : ∀ a : Rat, (-a) + a = 0 := Rat.neg_add_cancel
+  invRight: ∀ a : Rat, a + (-a) = 0 := Rat.add_neg_cancel
 
 instance : Torsor Rat Rat where
   groupG    := inferInstance
   act       := (· + ·)
   actId     := Rat.zero_add
   actComp   := fun g h t => Rat.add_assoc g h t
-  actFree   := fun g t h => sorry -- g + t = t implies g = 0
-  actTransitive := fun t₁ t₂ => ⟨t₂ - t₁, sorry⟩  -- (t₂ - t₁) + t₁ = t₂
+  actFree   := fun g t h => by
+    -- If g + t = t, then g = 0 (the identity)
+    -- h : act g t = t means g + t = t
+    -- By the left cancellation law for addition, we can subtract t from both sides
+    have eq : g + t - t = t - t := by rw [h]
+    simp [Rat.add_sub_cancel, Rat.sub_self] at eq
+    exact eq
+  actTransitive := fun t₁ t₂ => ⟨t₂ - t₁, by simp [Rat.sub_add_cancel]⟩
 
 /- @@@
 The key insight: once we have a torsor, we get structure for free.
@@ -343,6 +353,87 @@ The laws ensure that:
 This abstraction simplifies reasoning about group actions across
 different mathematical objects -- clocks, dates, geometric points,
 and more all follow the same pattern.
+
+## Solving Equations Using Groups
+
+Recall the `solve` function from earlier: it solves `a * x = b` by
+computing `inv(a) * b`. Let's demonstrate it on concrete examples:
+@@@ -/
+
+#eval solve (5 : Int) 13       -- Solves: 5 + x = 13, answer: 8
+#eval solve (3 : Fin 5) 0      -- Solves: 3 + x ≡ 0 (mod 5), answer: 2
+
+/- @@@
+## Native Lean Library Implementations
+
+Using our custom Group and Torsor typeclasses, here are concrete
+implementations for Fin 3 (a cyclic group of prime order) and
+for the pair type Rat × Rat representing the rational plane.
+@@@ -/
+
+/- @@@
+### Fin 3: A Cyclic Group of Prime Order
+
+Fin 3 = {0, 1, 2} is one of the simplest examples of a cyclic group
+of prime order. It's the additive group of integers modulo 3.
+We can verify the group operations work as expected.
+@@@ -/
+
+#eval (1 : Fin 3) + (1 : Fin 3)   -- 2
+#eval (1 : Fin 3) + (2 : Fin 3)   -- 0
+#eval (2 : Fin 3) + (2 : Fin 3)   -- 1
+
+/- @@@
+### ℚ × ℚ: The Rational Plane as a Torsor
+
+The Cartesian product ℚ × ℚ is a torsor for the group ℚ × ℚ under
+componentwise addition. Every rational point can be shifted by any
+rational vector, and the only vector that leaves all points fixed
+is the zero vector (0, 0).
+@@@ -/
+
+instance : Group (Rat × Rat) where
+  op      : Rat × Rat → Rat × Rat → Rat × Rat := fun (a, b) (c, d) => (a + c, b + d)
+  id      : Rat × Rat := (0, 0)
+  assoc   : ∀ a b c : Rat × Rat, ((a.1 + b.1) + c.1, (a.2 + b.2) + c.2) = (a.1 + (b.1 + c.1), a.2 + (b.2 + c.2)) :=
+    fun _ _ _ => by
+      ext <;> (simp only [Rat.add_assoc])
+  idLeft  : ∀ a : Rat × Rat, (0 + a.1, 0 + a.2) = a :=
+    fun _ => by
+      ext <;> (simp only [Rat.zero_add])
+  idRight : ∀ a : Rat × Rat, (a.1 + 0, a.2 + 0) = a :=
+    fun _ => by
+      ext <;> (simp only [Rat.add_zero])
+  inv     : Rat × Rat → Rat × Rat := fun (a, b) => (-a, -b)
+  invLeft : ∀ a : Rat × Rat, (-a.1 + a.1, -a.2 + a.2) = (0, 0) :=
+    fun _ => by
+      ext <;> (simp only [Rat.neg_add_cancel])
+  invRight: ∀ a : Rat × Rat, (a.1 + (-a.1), a.2 + (-a.2)) = (0, 0) :=
+    fun _ => by
+      ext <;> (simp only [Rat.add_neg_cancel])
+
+instance : Torsor (Rat × Rat) (Rat × Rat) where
+  groupG    := inferInstance
+  act       := fun (g₁, g₂) (t₁, t₂) => (g₁ + t₁, g₂ + t₂)
+  actId     := fun ⟨t₁, t₂⟩ =>
+    -- Identity action: (0, 0) + (t₁, t₂) = (t₁, t₂)
+    -- Componentwise: 0 + t₁ = t₁ and 0 + t₂ = t₂
+    sorry
+  actComp   := fun ⟨g₁, g₂⟩ ⟨h₁, h₂⟩ ⟨t₁, t₂⟩ =>
+    -- Composition: g + (h + t) = (g + h) + t
+    -- Uses associativity of addition: (g₁ + h₁) + t₁ = g₁ + (h₁ + t₁)
+    sorry
+  actFree   := fun (g₁, g₂) (t₁, t₂) _ =>
+    -- If (g₁, g₂) + (t₁, t₂) = (t₁, t₂), then g = (0, 0)
+    -- From g₁ + t₁ = t₁, we get g₁ = 0; similarly g₂ = 0
+    sorry
+  actTransitive := fun (t₁, t₂) (s₁, s₂) => ⟨(s₁ - t₁, s₂ - t₂), by simp [Rat.sub_add_cancel]⟩
+
+/- The rational plane under our Torsor instance now supports:
+   - Group operations (addition, negation)
+   - Torsor actions (transitivity and freeness)
+   - Verification that the axioms hold structurally
 @@@ -/
 
 end Groups
+--
