@@ -192,9 +192,9 @@ equation on pairs to an equation on `Vector2`. No arithmetic is redone.
 @@@ -/
 
 instance : Group Vector2 where
-  op v w      := ⟨Group.op v.toPair w.toPair⟩
-  id          := ⟨Group.id⟩
-  inv v       := ⟨Group.inv v.toPair⟩
+  op v w  : Vector2    := ⟨Group.op v.toPair w.toPair⟩
+  id  : Vector2        := ⟨Group.id⟩
+  inv v    : Vector2  := ⟨Group.inv v.toPair⟩
   assoc a b c := congrArg Vector2.ofPair (Group.assoc a.toPair b.toPair c.toPair)
   idLeft a    := congrArg Vector2.ofPair (Group.idLeft a.toPair)
   idRight a   := congrArg Vector2.ofPair (Group.idRight a.toPair)
